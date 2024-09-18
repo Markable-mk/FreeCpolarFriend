@@ -33,4 +33,12 @@ public interface CpolarFreePath {
      * @param keyWord
      */
    void getTunnelAndSendMsgToDingTalk(String userName, String password,String accessToken,String keyWord);
+
+    /**
+     * 4 生成消息
+     * @param tunnelMapHttp
+     * @return
+     */
+    String getStringMessageFromMap(Map<String,String> tunnelMapHttp);
+
 }

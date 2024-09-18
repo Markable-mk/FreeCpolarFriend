@@ -17,6 +17,8 @@ public interface CpolarConstant {
     String KEY_MAP_LOGIN = "login";
     String KEY_MAP_PASSWORD = "password";
 
+    String DING_TALK_KEY_WORD = "CPOLARFREE";
+
     /**
      * CPOLAR 用户名-敏感
      */

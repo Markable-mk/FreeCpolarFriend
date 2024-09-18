@@ -42,7 +42,7 @@ public class CpolarFreePathImpl implements CpolarFreePath {
      * @param tunnelMapHttp
      * @return
      */
-    private static String getStringMessageFromMap(Map<String,String> tunnelMapHttp){
+    public String getStringMessageFromMap(Map<String,String> tunnelMapHttp){
         StringBuffer stringBuffer = new StringBuffer();
         Set<String> keySet = tunnelMapHttp.keySet();
         for (String key : keySet) {

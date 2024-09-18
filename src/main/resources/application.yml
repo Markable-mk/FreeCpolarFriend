@@ -1,0 +1,7 @@
+server:
+  port: 8888
+cpolar:
+  userName: xxxxxxxxxxxxxx
+  password: xxxxxxxxxxxxxx
+dingTalk:
+  robotToken: xxxxxxxxxxxxxx
