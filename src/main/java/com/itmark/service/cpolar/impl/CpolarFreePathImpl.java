@@ -1,5 +1,6 @@
 package com.itmark.service.cpolar.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.http.*;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
@@ -13,6 +14,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -30,6 +32,9 @@ import java.util.*;
 @Slf4j
 @Service
 public class CpolarFreePathImpl implements CpolarFreePath {
+
+    @Value("${dingTalk.open:false}")
+    private Boolean sendToDingTalk;
 
     /**
      * 拼接消息
@@ -183,8 +188,19 @@ public class CpolarFreePathImpl implements CpolarFreePath {
 
     @Override
     public void getTunnelAndSendMsgToDingTalk(String userName, String password, String accessToken, String keyWord) {
+        if (StringUtils.isEmpty(userName)||StringUtils.isEmpty(password)){
+            log.warn("CPOLAR用户名密码缺失任务不执行。");
+        }
         Map<String, String> tunnelMapHttp = getOnLineTunnelMap(userName, password);
+        if (CollectionUtil.isEmpty(tunnelMapHttp)){
+            log.warn("消息为空不进行发送。");
+        }
         String message = getStringMessageFromMap(tunnelMapHttp);
-        sendMsgToDingTalk(message, keyWord, accessToken);
+        if (sendToDingTalk&&!StringUtils.isEmpty(accessToken)){
+            sendMsgToDingTalk(message, keyWord, accessToken);
+        }
+        if (!sendToDingTalk||StringUtils.isEmpty(accessToken)){
+            log.info("机器人未开启或者机器人令牌缺失不进行发送：{}", message);
+        }
     }
 }

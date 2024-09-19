@@ -18,6 +18,7 @@ public interface CpolarConstant {
     String ALGORITHM_METHOD = "HmacSHA256";
     String KEY_MAP_LOGIN = "login";
     String KEY_MAP_PASSWORD = "password";
+    Integer ONE = 1;
 
     /**
      * edge浏览器agent
