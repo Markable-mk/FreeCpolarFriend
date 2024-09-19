@@ -40,21 +40,18 @@ docker build --build-arg JAR_FILE=freeCpolarFrend-1.0-SNAPSHOT.jar -t free-cpola
 ```shell
 docker run -d --restart=always  --name xm-cpolar free-cpolar-frend:latest
 ```
--5 使用公共镜像部署
+## 2.2 使用公共镜像部署
 ```shell
-docker run -d \
-  --restart=always \
-  --network=my-common-net \
-  -e REDIS_HOST=xm-redis\
-  -e REDIS_PASSWORD=111111 \
-  -e REDIS_PORT= 6379 \
-  -e CPOLAR_USERNAME=xxxxxxxxxxxxxx \
-  -e CPOLAR_PASSWORD=xxxxxxxxxxxxxx \
-  -e DINGTALK_OPEN=true \
-  -e DINGTALK_ROBOTTOKEN=xxxxxxxxxxxxxx \
-  -e DINGTALK_KEYWORD=xxxxxxxxxxxxxx \
-  --name xm-cpolar \
-  registry.cn-hangzhou.aliyuncs.com/mk-release/free-cpolar-friend:latest
+docker run -d --restart=always --network=my-common-net \
+-e REDIS_HOST=xxxxxxxxxxxxxx \
+-e REDIS_PASSWORD=xxxxxxxxxxxxxx \
+-e REDIS_PORT=6379 \
+-e CPOLAR_USERNAME=xxxxxxxxxxxxxx \
+-e CPOLAR_PASSWORD=xxxxxxxxxxxxxx \
+-e DINGTALK_OPEN=true \
+-e DINGTALK_ROBOTTOKEN=xxxxxxxxxxxxxx \
+-e DINGTALK_KEYWORD=xxxxxxxxxxxxxx \
+--name xm-cpolar registry.cn-hangzhou.aliyuncs.com/mk-release/free-cpolar-friend:latest  
 ```
 | 条目    | 描述                | 是否必填 |
 |-------|-------------------|------|
@@ -68,6 +65,6 @@ docker run -d \
 |-e DINGTALK_ROBOTTOKEN| cpolar用户名  |必填 |
 |-e DINGTALK_KEYWORD| cpolar用户名    |必填 |
 
-## 2.2 jar 方式部署
+## 2.3 jar 方式部署
 - 1  安装jdk11
 - 2  java -jar xxxx.jar
