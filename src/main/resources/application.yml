@@ -2,16 +2,16 @@ server:
   port: 8888
 spring:
   redis:
-    host: xm-redis
-    password: 111111
-    port: 6379
+    host: ${REDIS_HOST:127.0.0.1}
+    password: ${REDIS_PASSWORD:}
+    port: ${REDIS_PORT:6379}
 cpolar:
-  userName: xxxxxxxxxxxxxx # 用户名
-  password: xxxxxxxxxxxxxx # 密码
+  userName: ${CPOLAR_USERNAME:} # 用户名
+  password: ${CPOLAR_PASSWORD:} # 密码
 dingTalk:
-  open: true # 是否钉钉提醒
-  robotToken: xxxxxxxxxxxxxx # 机器人token
-  keyWord: xxxxxxxxxxxxxx # 机器人关键字
+  open: ${DINGTALK_OPEN:true} # 是否钉钉提醒
+  robotToken: ${DINGTALK_ROBOTTOKEN:} # 机器人token
+  keyWord: ${DINGTALK_KEYWORD:} # 机器人关键字
 task-cycle:
   type: HOUR # HOUR 小时 MINUTE 分钟 SECOND 秒
   length: 1  # 间隔多久循环
