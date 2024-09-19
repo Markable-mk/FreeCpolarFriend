@@ -1,7 +1,11 @@
 server:
   port: 8888
 cpolar:
-  userName: xxxxxxxxxxxxxx
-  password: xxxxxxxxxxxxxx
+  userName: xxxxxxxxxxxxxx # 用户名
+  password: xxxxxxxxxxxxxx # 密码
 dingTalk:
-  robotToken: xxxxxxxxxxxxxx
+  open: true # 是否钉钉提醒
+  robotToken: xxxxxxxxxxxxxx # 机器人token
+task-cycle:
+  type: HOUR # HOUR 小时 MINUTE 分钟 SECOND 秒
+  length: 1  # 间隔多久循环
