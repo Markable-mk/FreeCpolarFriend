@@ -1,0 +1,70 @@
+name: Mvn Build and Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 1 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 2 Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+
+      - name: 3 Dependies Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: 4 Build with Maven
+        run: |
+          mvn clean package -Dmaven.test.skip=true
+
+      - name: Debug Secrets
+        env:
+          dockerName: ${{ vars.ALIYUN_REGISTRY_USER }}
+          dockerPasswd: ${{ secrets.ALIYUN_REGISTRY_PWD }}
+        run: |
+          ls -alh
+          ls -alh target
+          echo "ALIYUN_REGISTRY_USER: $dockerName"   
+          echo "ALIYUN_REGISTRY_PWD: $dockerPasswd"
+
+      - name: 5 Login to DockerAlibaba
+        env:
+          MY_DOCKER_NAME: ${{ vars.ALIYUN_REGISTRY_USER }}
+          MY_DOCKER_PWD: ${{ secrets.ALIYUN_REGISTRY_PWD }}
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-hangzhou.aliyuncs.com
+          username: ${{ env.MY_DOCKER_NAME }}
+          password: ${{ env.MY_DOCKER_PWD }}
+
+      - name: 6 Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./build_images/Dockerfile
+          # 所需要的体系结构，可以在 Available platforms 步骤中获取所有的可用架构 https://docs.docker.com/build/building/multi-platform/
+          platforms: linux/amd64
+          # 镜像推送时间
+          push: ${{ github.event_name != 'pull_request' }}
+          # 给清单打上多个标签
+          tags: |
+            registry.cn-hangzhou.aliyuncs.com/mk-release/free-cpolar-friend:latest
+          build-args: |
+            JAR_FILE=./target/freeCpolarFrend-1.0-SNAPSHOT.jar
+
+      - name: 7 Push to Alibaba Cloud Container Registry
+        run: |
+          docker push registry.cn-hangzhou.aliyuncs.com/mk-release/free-cpolar-friend:latest
