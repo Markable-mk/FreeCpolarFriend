@@ -23,7 +23,7 @@ public interface CpolarFreePath {
      * @param accessToken 机器人TOKEN
      * @param keyWord 关键字
      */
-   void sendMsgToDingTalk(String message,String accessToken,String keyWord);
+   void sendMsgToDingTalk(String message, String keyWord, String accessToken);
 
     /**
      * 3 获取隧道并发送

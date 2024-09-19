@@ -182,7 +182,7 @@ public class CpolarFreePathImpl implements CpolarFreePath {
     }
 
     @Override
-    public void sendMsgToDingTalk(String message, String accessToken, String keyWord) {
+    public void sendMsgToDingTalk(String message, String keyWord, String accessToken) {
         sendTunnelMapToDingTalk(message, keyWord, accessToken);
     }
 
