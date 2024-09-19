@@ -14,13 +14,13 @@
 - 2 需要修改 application.yml 中 钉钉机器人token
 ## 2.2 如何获取钉钉机器人token
 ### 2.2.1 创建钉钉群聊
-![img.png](01创建群.png)
+![img.png](image/01创建群.png)
 ### 2.2.2 添加机器人
-![img.png](02群设置.png)
-![img.png](03添加机器人.png)
-![img.png](04选择机器人.png)
+![img.png](image/02群设置.png)
+![img.png](image/03添加机器人.png)
+![img.png](image/04选择机器人.png)
 ### 2.2.3 设置机器人
-![img.png](05设置机器人.png)
+![img.png](image/05设置机器人.png)
 关键字意思是在发送消息时必须包含该关键词，否则不发送消息
 # 3 部署
 ## 2.1 docker方式部署
