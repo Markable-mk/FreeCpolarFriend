@@ -2,6 +2,8 @@ package com.itmark.service.cpolar.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.http.*;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
 import com.dingtalk.api.request.OapiRobotSendRequest;
@@ -15,14 +17,17 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.HttpCookie;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @description:
@@ -35,6 +40,9 @@ public class CpolarFreePathImpl implements CpolarFreePath {
 
     @Value("${dingTalk.open:false}")
     private Boolean sendToDingTalk;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 拼接消息
@@ -140,14 +148,22 @@ public class CpolarFreePathImpl implements CpolarFreePath {
      * @param password
      * @return
      */
-    private static List<HttpCookie> getCookieString(String csrfToken, String userName, String password) {
+    private List<HttpCookie> getCookieString(String csrfToken, String userName, String password) {
         Map<String, Object> loginMap = new HashMap<>();
         loginMap.put(CpolarConstant.KEY_MAP_LOGIN, userName);
         loginMap.put(CpolarConstant.KEY_MAP_PASSWORD, password);
         loginMap.put(CpolarConstant.KEY_TOKEN, csrfToken);
-        HttpResponse execute = HttpRequest.post(CpolarConstant.LOGIN_URL).form(loginMap).header(Header.USER_AGENT, CpolarConstant.USER_AGENT_EDGE).timeout(HttpGlobalConfig.getTimeout()).execute();
-        List<HttpCookie> cookies = execute.getCookies();
-        return cookies;
+        String cookieString = stringRedisTemplate.opsForValue().get(CpolarConstant.REDIS_KEY_COOKIE + userName);
+        if (StringUtils.isEmpty(cookieString)){
+            HttpResponse execute = HttpRequest.post(CpolarConstant.LOGIN_URL).form(loginMap).header(Header.USER_AGENT, CpolarConstant.USER_AGENT_EDGE).timeout(HttpGlobalConfig.getTimeout()).execute();
+            List<HttpCookie> cookiesFromReq = execute.getCookies();
+            // 59分钟后过期
+            stringRedisTemplate.opsForValue().set(CpolarConstant.REDIS_KEY_COOKIE + userName,JSON.toJSONString(cookiesFromReq),59, TimeUnit.MINUTES);
+            return cookiesFromReq;
+        }
+        List<HttpCookie> cookiesFromRedis = JSON.parseObject(cookieString, new TypeReference<List<HttpCookie>>() {
+        });
+        return cookiesFromRedis;
     }
 
     /**
@@ -171,6 +187,23 @@ public class CpolarFreePathImpl implements CpolarFreePath {
         String loginPage = HttpRequest.get(CpolarConstant.LOGIN_URL).header(Header.USER_AGENT, CpolarConstant.USER_AGENT_EDGE).execute().body();
         // 2 GET csrf_token FROM PAGE
         String csrfToken = getCsrfTokenFromLoginPage(loginPage);
+        // 3 get tunnel
+        Map<String, String> tunnelMapHttp = getCookieAndGetTunnelMap(userName, password, csrfToken);
+        // 4 retry
+        if (CollectionUtil.isEmpty(tunnelMapHttp)){
+            tunnelMapHttp = getCookieAndGetTunnelMap(userName, password, csrfToken);
+        }
+        return tunnelMapHttp;
+    }
+
+    /**
+     * 优化后
+     * @param userName
+     * @param password
+     * @param csrfToken
+     * @return
+     */
+    private Map<String, String> getCookieAndGetTunnelMap(String userName, String password, String csrfToken) {
         // 3 登陆 获取COOKIE
         List<HttpCookie> cookies = getCookieString(csrfToken, userName, password);
         // 4 请求在线隧道所在页面
@@ -178,6 +211,9 @@ public class CpolarFreePathImpl implements CpolarFreePath {
                 .cookie(cookies).header(Header.USER_AGENT, CpolarConstant.USER_AGENT_EDGE).execute().body();
         // 5 获取隧道MAP
         Map<String, String> tunnelMapHttp = getTunnelMapByStatusPage(statusPage, false);
+        if (CollectionUtil.isEmpty(tunnelMapHttp)){
+            stringRedisTemplate.delete(CpolarConstant.REDIS_KEY_COOKIE + userName);
+        }
         return tunnelMapHttp;
     }
 
@@ -187,7 +223,7 @@ public class CpolarFreePathImpl implements CpolarFreePath {
     }
 
     @Override
-    public void getTunnelAndSendMsgToDingTalk(String userName, String password, String accessToken, String keyWord) {
+    public void getTunnelAndSendMsgToDingTalk(String userName, String password, String robotToken, String keyWord) {
         if (StringUtils.isEmpty(userName)||StringUtils.isEmpty(password)){
             log.warn("CPOLAR用户名密码缺失任务不执行。");
         }
@@ -196,10 +232,10 @@ public class CpolarFreePathImpl implements CpolarFreePath {
             log.warn("消息为空不进行发送。");
         }
         String message = getStringMessageFromMap(tunnelMapHttp);
-        if (sendToDingTalk&&!StringUtils.isEmpty(accessToken)){
-            sendMsgToDingTalk(message, keyWord, accessToken);
+        if (sendToDingTalk&&!StringUtils.isEmpty(robotToken)){
+            sendMsgToDingTalk(message, keyWord, robotToken);
         }
-        if (!sendToDingTalk||StringUtils.isEmpty(accessToken)){
+        if (!sendToDingTalk||StringUtils.isEmpty(robotToken)){
             log.info("机器人未开启或者机器人令牌缺失不进行发送：{}", message);
         }
     }

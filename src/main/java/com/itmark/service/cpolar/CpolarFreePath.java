@@ -29,10 +29,10 @@ public interface CpolarFreePath {
      * 3 获取隧道并发送
      * @param userName
      * @param password
-     * @param accessToken
+     * @param robotToken
      * @param keyWord
      */
-   void getTunnelAndSendMsgToDingTalk(String userName, String password,String accessToken,String keyWord);
+   void getTunnelAndSendMsgToDingTalk(String userName, String password,String robotToken,String keyWord);
 
     /**
      * 4 生成消息

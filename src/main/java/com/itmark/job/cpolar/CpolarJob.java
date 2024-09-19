@@ -24,12 +24,14 @@ public class CpolarJob extends QuartzJobBean {
     private String password;
     @Value("${dingTalk.robotToken}")
     private String robotToken;
+    @Value("${dingTalk.keyWord}")
+    private String keyWord;
 
     @Resource
     private CpolarFreePath cpolarFreePath;
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        log.debug("获取到用户：{}，密码：{}，token:{}。",userName,password,robotToken);
-        cpolarFreePath.getTunnelAndSendMsgToDingTalk(userName,password,robotToken,CpolarConstant.DING_TALK_KEY_WORD);
+        log.debug("获取到用户：{}，密码：{}，机器人关键字：{}，机器人token:{}。",userName,password,keyWord,robotToken);
+        cpolarFreePath.getTunnelAndSendMsgToDingTalk(userName,password,robotToken,keyWord);
     }
 }

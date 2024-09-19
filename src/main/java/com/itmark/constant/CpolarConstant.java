@@ -19,12 +19,14 @@ public interface CpolarConstant {
     String KEY_MAP_LOGIN = "login";
     String KEY_MAP_PASSWORD = "password";
     Integer ONE = 1;
+    /**
+     * cookie redisKey
+     */
+    String REDIS_KEY_COOKIE = "COPLAR_COOKIE_";
 
     /**
      * edge浏览器agent
      */
     String USER_AGENT_EDGE = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0";
-
-    String DING_TALK_KEY_WORD = "CPOLARFREE";
 
 }
