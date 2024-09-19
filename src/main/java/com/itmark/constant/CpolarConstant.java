@@ -6,8 +6,10 @@ package com.itmark.constant;
  * @date: 2024/9/18 22:07
  */
 public interface CpolarConstant {
+
     String LOGIN_URL = "https://dashboard.cpolar.com/login";
     String STATUS_URL = "https://dashboard.cpolar.com/status";
+    String DING_TALk_URL = "https://oapi.dingtalk.com/robot/send?sign=";
     String KEY_NAME = "name";
     String KEY_TOKEN = "csrf_token";
     String KEY_VALUE = "value";
@@ -17,23 +19,11 @@ public interface CpolarConstant {
     String KEY_MAP_LOGIN = "login";
     String KEY_MAP_PASSWORD = "password";
 
+    /**
+     * edge浏览器agent
+     */
+    String USER_AGENT_EDGE = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0";
+
     String DING_TALK_KEY_WORD = "CPOLARFREE";
-
-    /**
-     * CPOLAR 用户名-敏感
-     */
-    String LOGIN_USER_NAME = "xxxxxxxxxxxxxxx";
-
-
-    /**
-     * CPOLAR 密码-敏感
-     */
-    String LOGIN_USER_PWD = "xxxxxxxxxxxxxxx";
-
-
-    /**
-     * DINGDING机器人TOKEN
-     */
-    String  CUSTOM_ROBOT_TOKEN="xxxxxxxxxxxxxxx";
 
 }
