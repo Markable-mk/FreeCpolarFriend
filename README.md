@@ -4,9 +4,13 @@
 钉钉机器人服务效果图
 
 ![img.png](image/00效果图.png)
-如果你是linux用户，那么推荐你使用命令一键安装
+如果你是linux用户，那么推荐你使用命令一键安装cpolar服务。（注意并不是安装本服务）
 ```shell
 curl -L https://www.cpolar.com/static/downloads/install-release-cpolar.sh | sudo bash
+```
+cpolar的配置文件默认在
+```shell
+/usr/local/etc/cpolar/cpolar.yml
 ```
 更多系统安装方式可以参考官方文档
 ```shell
