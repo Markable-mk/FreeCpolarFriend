@@ -13,5 +13,6 @@ dingTalk:
   robotToken: ${DINGTALK_ROBOTTOKEN:} # 机器人token
   keyWord: ${DINGTALK_KEYWORD:} # 机器人关键字
 task-cycle:
-  type: HOUR # HOUR 小时 MINUTE 分钟 SECOND 秒
-  length: 1  # 间隔多久循环
+  type: ${CYCLE_TYPE:HOUR}  # HOUR 小时 MINUTE 分钟 SECOND 秒
+  length: ${CYCLE_LENGTH:1}  # 间隔多久循环
+  cronExpression: ${CYCLE_CRONE:} # CRONE表达式 优先于循环任务执行
