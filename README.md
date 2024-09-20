@@ -4,6 +4,15 @@
 钉钉机器人服务效果图
 
 ![img.png](image/00效果图.png)
+如果你是linux用户，那么推荐你使用命令一键安装
+```shell
+curl -L https://www.cpolar.com/static/downloads/install-release-cpolar.sh | sudo bash
+```
+更多系统安装方式可以参考官方文档
+```shell
+https://www.cpolar.com/docs
+```
+![img.png](image/07cpolar官网.png)
 
 ## 1.2 版本
 | 条目    | 版本 | 描述       |
@@ -24,6 +33,10 @@
 ![img.png](image/04选择机器人.png)
 ### 2.2.3 设置机器人
 ![img.png](image/05设置机器人.png)
+
+查看token
+
+![img.png](image/06查看机器人TOKEN.png)
 关键字意思是在发送消息时必须包含该关键词，否则不发送消息
 # 3 部署
 ## 2.1 docker方式部署
@@ -53,17 +66,20 @@ docker run -d --restart=always --network=my-common-net \
 -e DINGTALK_KEYWORD=xxxxxxxxxxxxxx \
 --name xm-cpolar registry.cn-hangzhou.aliyuncs.com/mk-release/free-cpolar-friend:latest  
 ```
-| 条目    | 描述                | 是否必填 |
-|-------|-------------------|------|
-| --network   | 指定docker网络     | 非必填  |
-|-e REDIS_HOST| redis地址         | 必填   |
-|-e REDIS_PASSWORD| redis密码      | 必填     |
-|-e REDIS_PORT| redis端口默认6379     | 非必填  |
-|-e CPOLAR_USERNAME| cpolar用户名     |必填 |
-|-e CPOLAR_PASSWORD| cpolar密码   |必填    |
-|-e DINGTALK_OPEN| 是否开启钉钉提醒默认true|非必填 |
-|-e DINGTALK_ROBOTTOKEN| cpolar用户名  |必填 |
-|-e DINGTALK_KEYWORD| cpolar用户名    |必填 |
+| 条目    | 描述                                         | 是否必填 |
+|-------|--------------------------------------------|------|
+| --network   | 指定docker网络，用于使用名称连接redis，不用去掉              | 非必填  |
+|-e REDIS_HOST| redis地址                                    | 必填   |
+|-e REDIS_PASSWORD| redis密码                                    | 必填     |
+|-e REDIS_PORT| redis端口默认6379                              | 非必填  |
+|-e CPOLAR_USERNAME| cpolar用户名                                  |必填 |
+|-e CPOLAR_PASSWORD| cpolar密码                                   |必填    |
+|-e DINGTALK_OPEN| 是否开启钉钉提醒默认true                             |非必填 |
+|-e DINGTALK_ROBOTTOKEN| 机器人TOKEN                                   |必填 |
+|-e DINGTALK_KEYWORD| 机器人关键字                                     |必填 |
+|-e CYCLE_CRONE| CRONE表达式，如果配置则优先使用                         |非必填 |
+|-e CYCLE_TYPE| 循环执行时间单位，# HOUR 小时 MINUTE 分钟 SECOND 秒，默认小时 |非必填 |
+|-e CYCLE_LENGTH| 循环执行时间长度，默认1                               |非必填 |
 
 ## 2.3 jar 方式部署
 - 1  安装jdk11
