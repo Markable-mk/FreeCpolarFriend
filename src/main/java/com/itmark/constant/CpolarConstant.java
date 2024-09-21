@@ -19,10 +19,20 @@ public interface CpolarConstant {
     String KEY_MAP_LOGIN = "login";
     String KEY_MAP_PASSWORD = "password";
     Integer ONE = 1;
+    Integer ZERO = 0;
+    String SPLIT_HENG = "-";
+    String FLAG_CHANGE = "已改变";
+    String FLAG_NOT_CHANGE = "未改变";
+    String MAP_KEY_MESSAGE = "MESSAGE";
+    String MAP_KEY_CHANG_FLAG = "CHANG_FLAG";
     /**
      * cookie redisKey
      */
     String REDIS_KEY_COOKIE = "COPLAR_COOKIE_";
+    /**
+     * 服务外链地址 redisKey
+     */
+    String REDIS_KEY_EXTERNAL_URL = "REDIS_KEY_EXTERNAL_URL_";
 
     /**
      * edge浏览器agent

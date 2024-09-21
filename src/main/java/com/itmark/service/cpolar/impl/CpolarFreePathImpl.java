@@ -1,6 +1,8 @@
 package com.itmark.service.cpolar.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -45,18 +47,46 @@ public class CpolarFreePathImpl implements CpolarFreePath {
     private StringRedisTemplate stringRedisTemplate;
 
     /**
-     * 拼接消息
+     * 拼接消息，此处从REDIS中获取
      *
      * @param tunnelMapHttp
-     * @return
+     * @param userName
+     * @return Map<String,String>
      */
-    public String getStringMessageFromMap(Map<String, String> tunnelMapHttp) {
+    public Map<String,String> getStringMessageFromMap(Map<String, String> tunnelMapHttp,String userName) {
+        Map<String,String> map = new HashMap<>();
         StringBuffer stringBuffer = new StringBuffer();
         Set<String> keySet = tunnelMapHttp.keySet();
+        // 有改变
+        Integer hasChangeFlag = CpolarConstant.ZERO;
         for (String key : keySet) {
-            stringBuffer.append("服务名称：" + key + "，外链地址：" + tunnelMapHttp.get(key) + "\n\n");
+            String onlineUrl = tunnelMapHttp.get(key);
+            String redisUrl = stringRedisTemplate.opsForValue().get(CpolarConstant.REDIS_KEY_EXTERNAL_URL + userName+CpolarConstant.SPLIT_HENG+key);
+            if (StringUtils.isEmpty(redisUrl)|| StrUtil.equals(onlineUrl,redisUrl)){
+                if (StringUtils.isEmpty(redisUrl)){
+                    saveNewOnlineUrlToRedis(userName, key, onlineUrl);
+                }
+                stringBuffer.append("服务：" + key + "，外链：" + onlineUrl +" "+CpolarConstant.FLAG_NOT_CHANGE+ "\n\n");
+            }
+            if (!StringUtils.isEmpty(onlineUrl)&&!StringUtils.isEmpty(redisUrl)&&!StrUtil.equals(onlineUrl,redisUrl)){
+                saveNewOnlineUrlToRedis(userName, key, onlineUrl);
+                hasChangeFlag = CpolarConstant.ONE;
+                stringBuffer.append("服务：" + key + "，外链：" + onlineUrl +" "+CpolarConstant.FLAG_CHANGE+ "\n\n");
+            }
         }
-        return stringBuffer.toString();
+        map.put(CpolarConstant.MAP_KEY_CHANG_FLAG,hasChangeFlag.toString());
+        map.put(CpolarConstant.MAP_KEY_MESSAGE,stringBuffer.toString());
+        return map;
+    }
+
+    /**
+     * 设置新外链至Redis
+     * @param userName
+     * @param key
+     * @param onlineUrl
+     */
+    private void saveNewOnlineUrlToRedis(String userName, String key, String onlineUrl) {
+        stringRedisTemplate.opsForValue().set(CpolarConstant.REDIS_KEY_EXTERNAL_URL + userName +CpolarConstant.SPLIT_HENG+ key, onlineUrl);
     }
 
     /**
@@ -231,12 +261,28 @@ public class CpolarFreePathImpl implements CpolarFreePath {
         if (CollectionUtil.isEmpty(tunnelMapHttp)){
             log.warn("消息为空不进行发送。");
         }
-        String message = getStringMessageFromMap(tunnelMapHttp);
-        if (sendToDingTalk&&!StringUtils.isEmpty(robotToken)){
+        Map<String, String> stringMessageFromMap = getStringMessageFromMap(tunnelMapHttp, userName);
+        String message = stringMessageFromMap.get(CpolarConstant.MAP_KEY_MESSAGE);
+        String changeFlag = stringMessageFromMap.get(CpolarConstant.MAP_KEY_CHANG_FLAG);
+        if (Integer.parseInt(changeFlag)==CpolarConstant.ZERO){
+            log.info("当前时间：{}所有服务外链均没有发生改变，不再发送消息。", DateUtil.formatDateTime(new Date()));
+        }
+        if (sendToDingTalk&&!StringUtils.isEmpty(robotToken)&&Integer.parseInt(changeFlag)==CpolarConstant.ONE){
             sendMsgToDingTalk(message, keyWord, robotToken);
         }
         if (!sendToDingTalk||StringUtils.isEmpty(robotToken)){
             log.info("机器人未开启或者机器人令牌缺失不进行发送：{}", message);
         }
+    }
+
+    @Override
+    public String getStringMessageFromMap(Map<String, String> tunnelMapHttp) {
+        StringBuffer stringBuffer = new StringBuffer();
+        Set<String> keySet = tunnelMapHttp.keySet();
+        for (String key : keySet) {
+            String onlineUrl = tunnelMapHttp.get(key);
+            stringBuffer.append("服务：" + key + "，外链：" + onlineUrl + "\n\n");
+        }
+        return stringBuffer.toString();
     }
 }
