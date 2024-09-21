@@ -24,10 +24,25 @@ https://www.cpolar.com/docs
 | Jdk   | 11 |          |
 | Redis | 7.4.0 | 缓存历史链接信息 |
 
-# 2 配置修改
-## 2.1 修改内容
-- 1 需要修改 application.yml 中 cpolar 用户名密码
-- 2 需要修改 application.yml 中 钉钉机器人token
+## 1.3 特性
+
+### 20240919
+- 1 执行循环执行
+- 2 支持crone表达式定时执行
+### 20240920
+- 1 支持容器化部署
+### 20240921
+- 1 支持对外链变化进行标记是否变化，没有变化则不进行钉钉提醒
+
+# 2 配置
+## 2.1 关键配置
+如果你拉取代码运行
+- 1 application.yml 中 cpolar 用户名密码
+- 2 application.yml 中 钉钉机器人token
+- 3 application.yml 中 redis 配置
+## 2.2 容器运行配置
+参考 3.2 使用公共镜像部署 介绍的配置
+
 ## 2.2 如何获取钉钉机器人token
 ### 2.2.1 创建钉钉群聊
 ![img.png](image/01创建群.png)
@@ -43,7 +58,7 @@ https://www.cpolar.com/docs
 ![img.png](image/06查看机器人TOKEN.png)
 关键字意思是在发送消息时必须包含该关键词，否则不发送消息
 # 3 部署
-## 2.1 docker方式部署
+## 3.1 docker方式部署
 - 1 修改配置文件中的用户名密码token等，然后打包
 
 - 2 将jar包和dockerfile丢入一个文件夹
@@ -57,7 +72,7 @@ docker build --build-arg JAR_FILE=freeCpolarFrend-1.0-SNAPSHOT.jar -t free-cpola
 ```shell
 docker run -d --restart=always  --name xm-cpolar free-cpolar-frend:latest
 ```
-## 2.2 使用公共镜像部署
+## 3.2 使用公共镜像部署
 ```shell
 docker run -d --restart=always --network=my-common-net \
 -e REDIS_HOST=xxxxxxxxxxxxxx \
@@ -85,6 +100,6 @@ docker run -d --restart=always --network=my-common-net \
 |-e CYCLE_TYPE| 循环执行时间单位，# HOUR 小时 MINUTE 分钟 SECOND 秒，默认小时 |非必填 |
 |-e CYCLE_LENGTH| 循环执行时间长度，默认1                               |非必填 |
 
-## 2.3 jar 方式部署
+## 3.3 jar 方式部署
 - 1  安装jdk11
 - 2  java -jar xxxx.jar
