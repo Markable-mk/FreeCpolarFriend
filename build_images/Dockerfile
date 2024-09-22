@@ -6,7 +6,7 @@ COPY ${JAR_FILE} myapp.jar
 
 EXPOSE 8888
 
-# RUN echo "Asia/shanghai" > /etc/timezone
+RUN echo "Asia/shanghai" > /etc/timezone
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
