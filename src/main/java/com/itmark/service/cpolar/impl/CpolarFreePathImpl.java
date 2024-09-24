@@ -265,6 +265,9 @@ public class CpolarFreePathImpl implements CpolarFreePath {
         String message = stringMessageFromMap.get(CpolarConstant.MAP_KEY_MESSAGE);
         String changeFlag = stringMessageFromMap.get(CpolarConstant.MAP_KEY_CHANG_FLAG);
         if (Integer.parseInt(changeFlag)==CpolarConstant.ZERO){
+            //转换为中国时区
+            TimeZone time = TimeZone.getTimeZone("Etc/GMT-8");
+            TimeZone.setDefault(time);
             log.info("当前时间：{}所有服务外链均没有发生改变，不再发送消息。", DateUtil.formatDateTime(new Date()));
         }
         if (sendToDingTalk&&!StringUtils.isEmpty(robotToken)&&Integer.parseInt(changeFlag)==CpolarConstant.ONE){
