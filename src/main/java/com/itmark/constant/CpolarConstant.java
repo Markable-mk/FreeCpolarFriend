@@ -25,6 +25,7 @@ public interface CpolarConstant {
     String FLAG_NOT_CHANGE = "未改变";
     String MAP_KEY_MESSAGE = "MESSAGE";
     String MAP_KEY_CHANG_FLAG = "CHANG_FLAG";
+    String CHINA_TIME_ZONE_ID = "Etc/GMT-8";
     /**
      * cookie redisKey
      */
