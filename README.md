@@ -34,6 +34,9 @@ https://www.cpolar.com/docs
 ### 20240921
 - 1 支持对外链变化进行标记是否变化，没有变化则不进行钉钉提醒
 
+### 20241121
+- 1 加入caffeine，启动可以不依赖redis了
+
 # 2 配置
 ## 2.1 关键配置
 如果你拉取代码运行
@@ -83,6 +86,7 @@ docker run -d --restart=always --network=my-common-net \
 -e DINGTALK_OPEN=true \
 -e DINGTALK_ROBOTTOKEN=xxxxxxxxxxxxxx \
 -e DINGTALK_KEYWORD=xxxxxxxxxxxxxx \
+-e LOCAL_CACHE=true
 --name xm-cpolar registry.cn-hangzhou.aliyuncs.com/mk-release/free-cpolar-friend:latest  
 ```
 | 条目    | 描述                                         | 是否必填 |
@@ -99,6 +103,7 @@ docker run -d --restart=always --network=my-common-net \
 |-e CYCLE_CRONE| CRONE表达式，如果配置则优先使用                         |非必填 |
 |-e CYCLE_TYPE| 循环执行时间单位，# HOUR 小时 MINUTE 分钟 SECOND 秒，默认小时 |非必填 |
 |-e CYCLE_LENGTH| 循环执行时间长度，默认1                               |非必填 |
+|-e LOCAL_CACHE| 使用redis请填false，默认false                     |非必填 |
 
 ## 3.3 jar 方式部署
 - 1  安装jdk11
