@@ -12,6 +12,7 @@ import com.dingtalk.api.request.OapiRobotSendRequest;
 import com.dingtalk.api.response.OapiRobotSendResponse;
 import com.itmark.constant.CpolarConstant;
 import com.itmark.service.cpolar.CpolarFreePath;
+import com.itmark.service.dataCache.DataCacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.jsoup.Jsoup;
@@ -43,8 +44,14 @@ public class CpolarFreePathImpl implements CpolarFreePath {
     @Value("${dingTalk.open:false}")
     private Boolean sendToDingTalk;
 
+    @Value("${useCaffeine:false}")
+    private Boolean localCache;
+
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private DataCacheService dataCacheService;
 
     /**
      * 拼接消息，此处从REDIS中获取
@@ -61,7 +68,7 @@ public class CpolarFreePathImpl implements CpolarFreePath {
         Integer hasChangeFlag = CpolarConstant.ZERO;
         for (String key : keySet) {
             String onlineUrl = tunnelMapHttp.get(key);
-            String redisUrl = stringRedisTemplate.opsForValue().get(CpolarConstant.REDIS_KEY_EXTERNAL_URL + userName+CpolarConstant.SPLIT_HENG+key);
+            String redisUrl = getFromCache(userName, key);
             if (StringUtils.isEmpty(redisUrl)|| StrUtil.equals(onlineUrl,redisUrl)){
                 if (StringUtils.isEmpty(redisUrl)){
                     saveNewOnlineUrlToRedis(userName, key, onlineUrl);
@@ -79,6 +86,17 @@ public class CpolarFreePathImpl implements CpolarFreePath {
         return map;
     }
 
+    private String getFromCache(String userName, String key) {
+        String tempKey=CpolarConstant.REDIS_KEY_EXTERNAL_URL + userName +CpolarConstant.SPLIT_HENG+ key;
+        String redisUrl= null;
+        if (localCache){
+            redisUrl = dataCacheService.selectValueString(tempKey);
+        }else {
+            redisUrl = stringRedisTemplate.opsForValue().get(tempKey);
+        }
+        return redisUrl;
+    }
+
     /**
      * 设置新外链至Redis
      * @param userName
@@ -86,7 +104,12 @@ public class CpolarFreePathImpl implements CpolarFreePath {
      * @param onlineUrl
      */
     private void saveNewOnlineUrlToRedis(String userName, String key, String onlineUrl) {
-        stringRedisTemplate.opsForValue().set(CpolarConstant.REDIS_KEY_EXTERNAL_URL + userName +CpolarConstant.SPLIT_HENG+ key, onlineUrl);
+        String tempKey=CpolarConstant.REDIS_KEY_EXTERNAL_URL + userName +CpolarConstant.SPLIT_HENG+ key;
+        if (localCache){
+            dataCacheService.saveValue(tempKey,onlineUrl);
+        }else {
+            stringRedisTemplate.opsForValue().set(tempKey, onlineUrl);
+        }
     }
 
     /**
@@ -183,12 +206,24 @@ public class CpolarFreePathImpl implements CpolarFreePath {
         loginMap.put(CpolarConstant.KEY_MAP_LOGIN, userName);
         loginMap.put(CpolarConstant.KEY_MAP_PASSWORD, password);
         loginMap.put(CpolarConstant.KEY_TOKEN, csrfToken);
-        String cookieString = stringRedisTemplate.opsForValue().get(CpolarConstant.REDIS_KEY_COOKIE + userName);
+        String cookieString = null;
+        String cookieCacheKey = CpolarConstant.REDIS_KEY_COOKIE + userName;
+        if (localCache){
+            cookieString =dataCacheService.selectValueString(cookieCacheKey);
+        }else {
+            cookieString = stringRedisTemplate.opsForValue().get(cookieCacheKey);
+        }
+
         if (StringUtils.isEmpty(cookieString)){
             HttpResponse execute = HttpRequest.post(CpolarConstant.LOGIN_URL).form(loginMap).header(Header.USER_AGENT, CpolarConstant.USER_AGENT_EDGE).timeout(HttpGlobalConfig.getTimeout()).execute();
             List<HttpCookie> cookiesFromReq = execute.getCookies();
+            String cookieRespString = JSON.toJSONString(cookiesFromReq);
             // 59分钟后过期
-            stringRedisTemplate.opsForValue().set(CpolarConstant.REDIS_KEY_COOKIE + userName,JSON.toJSONString(cookiesFromReq),59, TimeUnit.MINUTES);
+            if (localCache){
+                dataCacheService.saveValue(cookieCacheKey,cookieRespString);
+            }else {
+                stringRedisTemplate.opsForValue().set(cookieCacheKey,cookieRespString,59, TimeUnit.MINUTES);
+            }
             return cookiesFromReq;
         }
         List<HttpCookie> cookiesFromRedis = JSON.parseObject(cookieString, new TypeReference<List<HttpCookie>>() {
@@ -242,7 +277,11 @@ public class CpolarFreePathImpl implements CpolarFreePath {
         // 5 获取隧道MAP
         Map<String, String> tunnelMapHttp = getTunnelMapByStatusPage(statusPage, false);
         if (CollectionUtil.isEmpty(tunnelMapHttp)){
-            stringRedisTemplate.delete(CpolarConstant.REDIS_KEY_COOKIE + userName);
+            if (localCache){
+                dataCacheService.deleteValue(CpolarConstant.REDIS_KEY_COOKIE + userName);
+            }else {
+                stringRedisTemplate.delete(CpolarConstant.REDIS_KEY_COOKIE + userName);
+            }
         }
         return tunnelMapHttp;
     }

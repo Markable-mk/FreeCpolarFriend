@@ -16,3 +16,4 @@ task-cycle:
   type: ${CYCLE_TYPE:HOUR}  # HOUR 小时 MINUTE 分钟 SECOND 秒
   length: ${CYCLE_LENGTH:1}  # 间隔多久循环
   cronExpression: ${CYCLE_CRONE:} # CRONE表达式 优先于循环任务执行
+useCaffeine: ${LOCAL_CACHE:false} # 使用本地缓存存储，0使用REDIS存储
