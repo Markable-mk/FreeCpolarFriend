@@ -8,7 +8,17 @@
 ```shell
 curl -L https://www.cpolar.com/static/downloads/install-release-cpolar.sh | sudo bash
 ```
-cpolar的配置文件默认在
+执行完命令后执行下面命令看看是否有版本号，有则安装成功
+```shell
+cpolar version
+```
+![img.png](image/08检查是否安装成功.png)
+如果安装成功，则紧接着进行token验证
+```shell
+cpolar authtoken 你的token
+```
+![img.png](image/09token验证.png)
+cpolar的配置文件默认在，验证后token会写入该文件
 ```shell
 /usr/local/etc/cpolar/cpolar.yml
 ```
@@ -36,6 +46,9 @@ https://www.cpolar.com/docs
 
 ### 20241121
 - 1 加入caffeine，启动可以不依赖redis了
+
+### 20250820
+- 1 fix:bug:修复第一次启动外链变化检测逻辑
 
 # 2 配置
 ## 2.1 关键配置

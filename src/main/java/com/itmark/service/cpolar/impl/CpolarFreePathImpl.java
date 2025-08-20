@@ -69,11 +69,15 @@ public class CpolarFreePathImpl implements CpolarFreePath {
         for (String key : keySet) {
             String onlineUrl = tunnelMapHttp.get(key);
             String redisUrl = getFromCache(userName, key);
-            if (StringUtils.isEmpty(redisUrl)|| StrUtil.equals(onlineUrl,redisUrl)){
+            if (StringUtils.isEmpty(redisUrl)|| !StrUtil.equals(onlineUrl,redisUrl)){
                 if (StringUtils.isEmpty(redisUrl)){
                     saveNewOnlineUrlToRedis(userName, key, onlineUrl);
+                    stringBuffer.append("服务：" + key + "，外链：" + onlineUrl +" "+CpolarConstant.FLAG_CHANGE+ "\n\n");
+                    hasChangeFlag = CpolarConstant.ONE;
+                }else {
+                    stringBuffer.append("服务：" + key + "，外链：" + onlineUrl +" "+CpolarConstant.FLAG_NOT_CHANGE+ "\n\n");
                 }
-                stringBuffer.append("服务：" + key + "，外链：" + onlineUrl +" "+CpolarConstant.FLAG_NOT_CHANGE+ "\n\n");
+
             }
             if (!StringUtils.isEmpty(onlineUrl)&&!StringUtils.isEmpty(redisUrl)&&!StrUtil.equals(onlineUrl,redisUrl)){
                 saveNewOnlineUrlToRedis(userName, key, onlineUrl);
