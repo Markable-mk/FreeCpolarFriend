@@ -71,7 +71,7 @@ public class QuartzConfig {
                     .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
                     .forJob(jobDetail())
                     .build();
-            log.info("Cron表达式：{}，CronTrigger触发器初始化完毕。",cronExpression);
+            log.debug("Cron表达式：{}，CronTrigger触发器初始化完毕。",cronExpression);
             return cronTrigger;
         }
         // 次用循环触发器
@@ -81,7 +81,7 @@ public class QuartzConfig {
                 .forJob(jobDetail())
                 .withSchedule(simpleScheduleBuilder)
                 .build();
-        log.info("触发器循环时间类型：{}，时间长度：{}，SimpleTrigger触发器初始化完毕。",taskType, length);
+        log.debug("触发器循环时间类型：{}，时间长度：{}，SimpleTrigger触发器初始化完毕。",taskType, length);
         return simpleTrigger;
     }
 }

@@ -69,6 +69,7 @@ public class CpolarFreePathImpl implements CpolarFreePath {
         for (String key : keySet) {
             String onlineUrl = tunnelMapHttp.get(key);
             String redisUrl = getFromCache(userName, key);
+            log.debug("当前外链KEY：{}，线上外链为：{}，缓存中外链为：{}。",key,onlineUrl,redisUrl);
             if (StringUtils.isEmpty(redisUrl)|| !StrUtil.equals(onlineUrl,redisUrl)){
                 if (StringUtils.isEmpty(redisUrl)){
                     saveNewOnlineUrlToRedis(userName, key, onlineUrl);
